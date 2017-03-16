@@ -8,11 +8,7 @@
 #include<stdio.h>
 #include<string.h>
 
-enum Boolean {
-    FALSE, TRUE
-};
-
-template<class Type>
+template<class T>
 class ListNode {
 public:
     template<class U> friend
@@ -22,76 +18,76 @@ public:
     class Graph;
 
     ListNode() {
-        Data = 0;
-        Link = 0;
+        data = 0;
+        next = 0;
     }
 
 private:
-    Type Data;
-    ListNode *Link;
+    T data;
+    ListNode *next;
 };
 
-template<class Type>
+template<class T>
 class List {
 public:
     template<class U> friend
     class Graph;
 
-    List() { Head = 0; }
+    List() { head = 0; }
 
-    void Add(const Type NewData);
+    void add(const T newData);
 
-    ListNode<Type> *GetHead() { return Head; }
+    ListNode<T> *getHead() { return head; }
 
 private:
-    ListNode<Type> *Head;
+    ListNode<T> *head;
 };
 
-template<class Type>
-void List<Type>::Add(const Type NewData) {
-    ListNode<Type> *p1, *NewNode;
+template<class T>
+void List<T>::add(const T newData) {
+    ListNode<T> *p, *newNode;
 
-    NewNode = new ListNode<Type>;
-    NewNode->Data = NewData;
-    NewNode->Link = 0;
-    if (Head == 0) {
-        Head = NewNode;
-        Head->Link = 0;
+    newNode = new ListNode<T>;
+    newNode->data = newData;
+    newNode->next = 0;
+    if (head == 0) {
+        head = newNode;
+        head->next = 0;
         return;
     }
 
-    p1 = Head;
-    while (p1->Link != 0) p1 = p1->Link;
-    p1->Link = NewNode;
+    p = head;
+    while (p->next != 0) p = p->next;
+    p->next = newNode;
 
 }
 
-template<class Type>
+template<class T>
 class Graph {
 public:
-    Graph(const int vertices = 0) : n(vertices) { HeadNodes = new List<Type>[n]; }
+    Graph(const int vertices = 0) : n(vertices) { headNodes = new List<T>[n]; }
 
-    void MakeAdjacencyList();
+    void makeAdjacencyList();
 
-    void Traversal(int index);
+    void traversal(int index);
 
-    void ShortestPath(int index);
+    void shortestPath(int index);
 
-    void DFS(const int startVertex);
+    void dfs(const int startVertex);
 
-    void DFSInternal(const int v);
+    void dfsInternal(const int v);
 
-    void BFS();
+    void bfs();
 
 private:
-    List<Type> *HeadNodes;
-    Boolean *visited;
+    List<T> *headNodes;
+    int *visited;
     int n;
-    int *UnDiMatrix, **DiMatrix;
+    int *unDiMatrix, **diMatrix;
 };
 
-template<class Type>
-void Graph<Type>::MakeAdjacencyList() {
+template<class T>
+void Graph<T>::makeAdjacencyList() {
     int count = 0;
     FILE *fp;
 
@@ -110,7 +106,7 @@ void Graph<Type>::MakeAdjacencyList() {
     }
 
     count = (count + 1) / 2;
-    UnDiMatrix = (int *) malloc(count * count * sizeof(int));
+    unDiMatrix = (int *) malloc(count * count * sizeof(int));
 
     rewind(fp);
     char ch;
@@ -123,11 +119,11 @@ void Graph<Type>::MakeAdjacencyList() {
 
             if (ch == ' ') {
                 num = atoi(s);
-                *(UnDiMatrix + count * i + (j - 1) / 2) = num;
+                *(unDiMatrix + count * i + (j - 1) / 2) = num;
                 s[0] = 0;
             } else if (ch == '\n' || feof(fp)) {
                 num = atoi(s);
-                *(UnDiMatrix + count * i + (count - 1)) = num;
+                *(unDiMatrix + count * i + (count - 1)) = num;
                 s[0] = 0;
             } else {
                 len = (int) strlen(s);
@@ -139,26 +135,26 @@ void Graph<Type>::MakeAdjacencyList() {
     std::cout << "Adjacency Matrix:" << std::endl;
     for (i = 0; i < count; i++) {
         for (j = 0; j < count; j++)
-            std::cout << (*(UnDiMatrix + i * count + j)) << ' ';
+            std::cout << (*(unDiMatrix + i * count + j)) << ' ';
         std::cout << std::endl;
     }
     std::cout << std::endl;
 
-    HeadNodes = new List<int>[count];
+    headNodes = new List<int>[count];
     for (i = 0; i < count; i++) {
         for (j = 0; j < count; j++)
-            if (*(UnDiMatrix + i * count + j)) HeadNodes[i].Add(j);
+            if (*(unDiMatrix + i * count + j)) headNodes[i].add(j);
     }
 
     fclose(fp);
 
     std::cout << "Adjacency List:" << std::endl;
     for (i = 0; i < count; i++) {
-        ListNode<Type> *p = HeadNodes[i].Head;
+        ListNode<T> *p = headNodes[i].head;
         std::cout << "[" << i << "]";
         while (p != 0) {
-            std::cout << " -> " << p->Data;
-            p = p->Link;
+            std::cout << " -> " << p->data;
+            p = p->next;
         }
         std::cout << std::endl;
     }
@@ -168,51 +164,51 @@ void Graph<Type>::MakeAdjacencyList() {
 }
 
 template<class Type>
-void Graph<Type>::DFS(const int startVertex) {
-    visited = new Boolean[n];
-    for (int i = 0; i < n; i++) visited[i] = FALSE;
+void Graph<Type>::dfs(const int startVertex) {
+    visited = new int[n];
+    for (int i = 0; i < n; i++) visited[i] = 0;
 
     std::cout << std::endl << "HEAD";
 
-    DFSInternal(startVertex);
+    dfsInternal(startVertex);
 
     delete[] visited;
 }
 
 template<class Type>
-void Graph<Type>::DFSInternal(const int v) {
-    visited[v] = TRUE;
+void Graph<Type>::dfsInternal(const int v) {
+    visited[v] = 1;
     std::cout << " -> " << v;
     ListNode<Type> *p;
-    p = HeadNodes[v].GetHead();
+    p = headNodes[v].getHead();
     while (p) {
-        if (!visited[p->Data]) DFSInternal(p->Data);
-        p = p->Link;
+        if (!visited[p->data]) dfsInternal(p->data);
+        p = p->next;
     }
 }
 
 template<class Type>
-void Graph<Type>::BFS() {
+void Graph<Type>::bfs() {
 }
 
 template<class Type>
-void Graph<Type>::Traversal(int index) {
+void Graph<Type>::traversal(int index) {
 }
 
 template<class Type>
-void Graph<Type>::ShortestPath(int index) {
+void Graph<Type>::shortestPath(int index) {
 }
 
 int main() {
-    Graph<int> Obj;
+    Graph<int> graph;
 
-    Obj.MakeAdjacencyList();
+    graph.makeAdjacencyList();
 
     int startVertex;
     std::cout << "Enter Start Vertex for DFS: ";
     std::cin >> startVertex;
 
-    Obj.DFS(startVertex);
+    graph.dfs(startVertex);
 
     std::cout << std::endl;
 
