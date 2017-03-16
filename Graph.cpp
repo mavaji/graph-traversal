@@ -65,7 +65,7 @@ void List<T>::add(const T newData) {
 template<class T>
 class Graph {
 public:
-    Graph(const int vertices = 0) : n(vertices) { headNodes = new List<T>[n]; }
+    Graph(const int vertices = 0) : vertexCount(vertices) { headNodes = new List<T>[vertexCount]; }
 
     void makeAdjacencyList();
 
@@ -82,8 +82,12 @@ public:
 private:
     List<T> *headNodes;
     int *visited;
-    int n;
+    int vertexCount;
     int *unDiMatrix, **diMatrix;
+
+    void printAdjacencyMatrix();
+
+    void printAdjacencyList();
 };
 
 template<class T>
@@ -132,13 +136,11 @@ void Graph<T>::makeAdjacencyList() {
             }
         }
 
-    std::cout << "Adjacency Matrix:" << std::endl;
-    for (i = 0; i < count; i++) {
-        for (j = 0; j < count; j++)
-            std::cout << (*(unDiMatrix + i * count + j)) << ' ';
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
+    fclose(fp);
+
+    vertexCount = count;
+
+    printAdjacencyMatrix();
 
     headNodes = new List<int>[count];
     for (i = 0; i < count; i++) {
@@ -146,10 +148,24 @@ void Graph<T>::makeAdjacencyList() {
             if (*(unDiMatrix + i * count + j)) headNodes[i].add(j);
     }
 
-    fclose(fp);
+    printAdjacencyList();
+}
 
+template<class T>
+void Graph<T>::printAdjacencyMatrix() {
+    std::cout << "Adjacency Matrix:" << std::endl;
+    for (int i = 0; i < vertexCount; i++) {
+        for (int j = 0; j < vertexCount; j++)
+            std::cout << (*(unDiMatrix + i * vertexCount + j)) << ' ';
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+template<class T>
+void Graph<T>::printAdjacencyList() {
     std::cout << "Adjacency List:" << std::endl;
-    for (i = 0; i < count; i++) {
+    for (int i = 0; i < vertexCount; i++) {
         ListNode<T> *p = headNodes[i].head;
         std::cout << "[" << i << "]";
         while (p != 0) {
@@ -159,14 +175,12 @@ void Graph<T>::makeAdjacencyList() {
         std::cout << std::endl;
     }
     std::cout << std::endl;
-
-    n = count;
 }
 
 template<class Type>
 void Graph<Type>::dfs(const int startVertex) {
-    visited = new int[n];
-    for (int i = 0; i < n; i++) visited[i] = 0;
+    visited = new int[vertexCount];
+    for (int i = 0; i < vertexCount; i++) visited[i] = 0;
 
     std::cout << std::endl << "HEAD";
 
