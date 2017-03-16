@@ -136,11 +136,13 @@ void Graph<Type>::MakeAdjacencyList() {
             }
         }
 
+    std::cout << "Adjacency Matrix:" << std::endl;
     for (i = 0; i < count; i++) {
         for (j = 0; j < count; j++)
             std::cout << (*(UnDiMatrix + i * count + j)) << ' ';
         std::cout << std::endl;
     }
+    std::cout << std::endl;
 
     HeadNodes = new List<int>[count];
     for (i = 0; i < count; i++) {
@@ -150,15 +152,17 @@ void Graph<Type>::MakeAdjacencyList() {
 
     fclose(fp);
 
+    std::cout << "Adjacency List:" << std::endl;
     for (i = 0; i < count; i++) {
         ListNode<Type> *p = HeadNodes[i].Head;
-        std::cout << i;
+        std::cout << "[" << i << "]";
         while (p != 0) {
             std::cout << " -> " << p->Data;
             p = p->Link;
         }
         std::cout << std::endl;
     }
+    std::cout << std::endl;
 
     n = count;
 }
